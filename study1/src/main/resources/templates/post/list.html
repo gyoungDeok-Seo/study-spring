@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>LIST</title>
+</head>
+<body>
+    <input id="keyword" placeholder="키워드 입력">
+    <button id="search">검색</button>
+    <div id="result"></div>
+</body>
+<script th:inline="javascript">
+    const posts = [[${pagination}]];
+    document.getElementById("search").addEventListener("click", async () => {
+        const keyword = document.getElementById("keyword").value
+        const response = await fetch(`/results/search?keyword=${keyword}`)
+        const json = await response.json();
+        if(response.ok){
+            const freePosts = json.freePosts;
+            const freePostsTotalCount = json.freePostsTotalCount;
+            let freePostData = `검색 결과 ${freePostsTotalCount}건`;
+            freePosts.forEach(freePost => {
+                freePostData += `<div>`
+                freePostData += `<a href="/free-post/list?keyword=${keyword}">더보기</a>`
+                freePostData += `<p>${freePost.postTitle}</p>`
+                freePostData += `<strong>${freePost.postContent}</strong>`
+                freePostData += `</div>`
+            });
+            document.getElementById("result").innerHTML = freePostData;
+        }
+    });
+</script>
+</html>

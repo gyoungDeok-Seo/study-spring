@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>상세보기</title>
+</head>
+<body>
+    <textarea id="reply">댓글 작성</textarea>
+    <button id="send">작성 완료</button>
+    <div id="replies"></div>
+</body>
+<script th:inline="javascript">
+    const post = [[${post}]];
+
+    const replyService = (function(){
+        async function write(replyContent){
+            const response = await fetch(`/replies/write`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json;charset=utf-8"},
+                body: JSON.stringify({
+                    replyContent: replyContent,
+                    memberId: 1,
+                    postId: post.id,
+                })
+            });
+            if(response.ok){
+                await showReplyList();
+            }
+        }
+
+        async function showReplyList(){
+            const response = await fetch(`/replies/list/${post.id}`);
+            const json = await response.json();
+            let text = ``;
+            json.forEach(reply => {
+                text += `<p>`;
+                text += reply.replyContent;
+                text += `<span style="color: blue; margin-left: 30px">${reply.memberName}</span>`
+                text += `</p>`;
+            });
+            document.getElementById("replies").innerHTML = text;
+        }
+
+        return {write: write, list: showReplyList};
+    })();
+
+    document.getElementById("send").addEventListener("click", () => {
+       const replyContent = document.getElementById("reply").value
+       replyService.write(replyContent);
+    });
+
+    replyService.list();
+
+</script>
+</html>

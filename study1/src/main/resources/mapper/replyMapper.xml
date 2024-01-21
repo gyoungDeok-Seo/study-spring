@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.study1.mapper.ReplyMapper">
+    <insert id="insert">
+        INSERT INTO TBL_REPLY(ID, REPLY_CONTENT, MEMBER_ID, POST_ID)
+        VALUES (SEQ_REPLY.NEXTVAL, #{replyContent}, #{memberId}, #{postId})
+    </insert>
+
+    <select id="selectAll" resultType="replyDTO">
+        SELECT R.ID, REPLY_CONTENT, R.MEMBER_ID, POST_ID, M.MEMBER_NAME
+        FROM TBL_MEMBER M JOIN TBL_REPLY R
+        ON POST_ID = #{postId} AND M.ID = R.MEMBER_ID
+        ORDER BY R.ID DESC
+    </select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+

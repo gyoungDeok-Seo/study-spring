@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.app.pagination.mapper.PostMapper">
+    <insert id="insert">
+        INSERT INTO TBL_POST(ID, POST_TITLE, POST_CONTENT, POST_WRITER, POST_READ_COUNT)
+        VALUES(SEQ_POST.NEXTVAL, #{postTitle}, #{postContent}, #{postWriter}, #{postReadCount})
+    </insert>
+
+    <select id="selectSearch" resultType="postVO">
+        SELECT ID, POST_TITLE, POST_CONTENT, POST_READ_COUNT, POST_WRITER, CREATED_DATE, UPDATED_DATE
+        FROM
+            (
+                SELECT ID, POST_TITLE, POST_CONTENT, POST_READ_COUNT, POST_WRITER, CREATED_DATE, UPDATED_DATE
+                FROM TBL_POST
+                WHERE POST_TITLE LIKE '%' || #{keyword} || '%' OR POST_CONTENT LIKE '%' || #{keyword} || '%'
+                ORDER BY ID DESC
+            )
+        <![CDATA[
+            WHERE ROWNUM <= 5
+        ]]>
+    </select>
+
+    <select id="selectAll" resultType="postVO">
+        SELECT ID, POST_TITLE, POST_CONTENT, POST_READ_COUNT, POST_WRITER, CREATED_DATE, UPDATED_DATE FROM
+            (
+                SELECT ROWNUM R, ID, POST_TITLE, POST_CONTENT, POST_READ_COUNT, POST_WRITER, CREATED_DATE, UPDATED_DATE
+                FROM
+                (
+                    SELECT ID, POST_TITLE, POST_CONTENT, POST_READ_COUNT, POST_WRITER, CREATED_DATE, UPDATED_DATE
+                    FROM TBL_POST
+                    ORDER BY
+                        <choose>
+                            <when test="search.order == 'popular'.toString()">
+                                POST_READ_COUNT
+                            </when>
+                            <otherwise>
+                                ID
+                            </otherwise>
+                        </choose>
+                    DESC
+                ) P1
+    <![CDATA[
+                WHERE ROWNUM <= #{pagination.endRow}
+            ) P2
+        WHERE P2.R >= #{pagination.startRow}
+    ]]>
+    </select>
+
+    <select id="selectTotal" resultType="int">
+        SELECT COUNT(ID) FROM TBL_POST
+        <if test="keyword != null and !keyword.equals('')">
+            WHERE POST_TITLE LIKE '%' || #{keyword} || '%' OR POST_CONTENT LIKE '%' || #{keyword} || '%'
+        </if>
+    </select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
